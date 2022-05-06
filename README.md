@@ -1,117 +1,101 @@
 # json-as-xlsx
 
-This is a tool that helps to build an excel from a json and it depends only on `xlsx`
+This is a tool that helps to build an excel from a json and it depends only on `xlsx` library
 
-Now with version **2.0.0** and above supports multiple sheets and custom styling
+You can see a live example of it working on any of this sites (there are many just in case):
 
-You can see a live example of how it works on this site: [luisenmarroquin.github.io/json-as-xlsx](https://luisenmarroquin.github.io/json-as-xlsx)
+- [xlsx.pages.dev](https://xlsx.pages.dev)
+- [xlsx.marroquin.dev](https://xlsx.marroquin.dev)
+- [xlsx.luismarroquin.com](https://xlsx.luismarroquin.com)
 
 ## Usage
 
-Just import and use it
-
 ```js
-let xlsx = require('json-as-xlsx')
+let xlsx = require("json-as-xlsx")
 
 let data = [
   {
-    sheet: 'Adults',
+    sheet: "Adults",
     columns: [
-      { label: 'User', value: 'user' }, // Top level data
-      { label: 'Age', value: row => (row.age + ' years') }, // Run functions
-      { label: 'Phone', value: row => (row.more ? row.more.phone || '' : '') }, // Deep props
+      { label: "User", value: "user" }, // Top level data
+      { label: "Age", value: (row) => row.age + " years" }, // Custom format
+      { label: "Phone", value: (row) => (row.more ? row.more.phone || "" : "") }, // Run functions
     ],
     content: [
-      { user: 'Andrea', age: 20, more: { phone: '11111111' } },
-      { user: 'Luis', age: 21, more: { phone: '12345678' } }
-    ]
-  }, {
-    sheet: 'Children',
+      { user: "Andrea", age: 20, more: { phone: "11111111" } },
+      { user: "Luis", age: 21, more: { phone: "12345678" } },
+    ],
+  },
+  {
+    sheet: "Children",
     columns: [
-      { label: 'User', value: 'user' }, // Top level data
-      { label: 'Age', value: row => (row.age + ' years') }, // Run functions
-      { label: 'Phone', value: 'user.more.phone' }, // Deep props
+      { label: "User", value: "user" }, // Top level data
+      { label: "Age", value: "age", format: '# "years"' }, // Column format
+      { label: "Phone", value: "user.more.phone", format: "(###) ###-####" }, // Deep props and column format
     ],
     content: [
-      { user: 'Manuel', age: 16, more: { phone: '99999999' } },
-      { user: 'Ana', age: 17, more: { phone: '87654321' } }
-    ]
-  }
+      { user: "Manuel", age: 16, more: { phone: 9999999900 } },
+      { user: "Ana", age: 17, more: { phone: 8765432135 } },
+    ],
+  },
 ]
 
 let settings = {
-  fileName: 'MySpreadsheet', // Name of the spreadsheet
+  fileName: "MySpreadsheet", // Name of the resulting spreadsheet
   extraLength: 3, // A bigger number means that columns will be wider
-  writeOptions: {} // Style options from https://github.com/SheetJS/sheetjs#writing-options
+  writeOptions: {}, // Style options from https://github.com/SheetJS/sheetjs#writing-options
 }
 
 xlsx(data, settings) // Will download the excel file
 ```
 
-### TypeScript
+If you want to trigger something after the file is downloaded, you can use the `callback` parameter:
 
-Here is an example of a server setup using TS, thanks to @elyse0 for the contribution
-
-```ts
-import xlsx, { IJsonSheet, ISettings } from 'json-as-xlsx'
-import express from 'express'
-
-const app = express()
-app.use(express.json())
-app.use(express.urlencoded({ extended: true }))
-
-const data: IJsonSheet[] = [
-  {
-    sheet: 'Adults',
-    columns: [
-      { label: 'User', value: 'user' },
-      { label: 'Age', value: 'age' }
-    ],
-    content: [
-      { user: 'Andrea', age: 20, more: { phone: '11111111' } },
-      { user: 'Luis', age: 21, more: { phone: '12345678' } }
-    ]
-  }, {
-    sheet: 'Children',
-    columns: [
-      { label: 'User', value: 'user' },
-      { label: 'Age', value: 'age' }
-    ],
-    content: [
-      { user: 'Manuel', age: 16, more: { phone: '99999999' } },
-      { user: 'Ana', age: 17, more: { phone: '87654321' } }
-    ]
-  }
-]
-
-const settings: ISettings = {
-  writeOptions: {
-    type: 'buffer',
-    bookType: 'xlsx'
-  }
+```js
+let callback = function (sheet) {
+  console.log("Download complete:", sheet)
 }
 
-app.get('/', (_, res) => {
-  const buffer = xlsx(data, settings)
-  res.writeHead(200, {
-    'Content-Type': 'application/octet-stream',
-    'Content-disposition': 'attachment; filename=MySheet.xlsx'
-  })
-  res.end(buffer)
-})
+xlsx(data, settings, callback) // Will download the excel file
+```
 
-const port = process.env.PORT ?? 3000
+### Column formatting
 
-app.listen(port, () => {
-  console.log(`Your app is listening on port ${port}`)
-})
+> **Note:** Cell formatting is type based, i.e. the format type and value type must match.
+>
+> If you want to use a Date format, the value must be of type Date; if you want a number format, the value must be a Number.
+
+Column formatting can be provided in the column object, i.e.
+
+```js
+columns: [{ label: "Income", value: "income", format: "€#,##0.00" }]
+```
+
+- A list of SheetJS format examples can be found
+  here: [SSF library](https://github.com/SheetJS/sheetjs/blob/f443aa8475ebf051fc4e888cf0a6c3e5b751813c/bits/10_ssf.js#L42)
+- ECMA-376 number formatting
+  specification: [Number formats](https://c-rex.net/projects/samples/ooxml/e1/Part4/OOXML_P4_DOCX_numFmts_topic_ID0E6KK6.html)
+
+Examples
+
+```js
+// Number formats
+
+"$0.00" // Basic
+"\£#,##0.00" // Pound
+"0%" // Percentage
+'#.# "ft"' // Number and text
+
+// Date formats
+"d-mmm-yy" // 12-Mar-22
+"ddd" // (eg. Sat)
+"dddd" // (eg. Saturday)
+"h:mm AM/PM" // 1:10 PM
 ```
 
 ## Examples
 
-This are my files used for development, remember to change:
+This are files used for development, please change imports from `../../src/index.js` to `json-as-xlsx`
 
-`require('./index.js')` and `require('../index.js')` to `require('json-as-xlsx')`
-
-* Frontend with [Vue here](https://github.com/LuisEnMarroquin/json-as-xlsx/blob/main/src/App.vue)
-* Backend with [Express here](https://github.com/LuisEnMarroquin/json-as-xlsx/blob/main/server.js)
+- [VueJS with JavaScript](https://github.com/LuisEnMarroquin/json-as-xlsx/blob/main/examples/vue-app/App.vue)
+- [Express with TypeScript](https://github.com/LuisEnMarroquin/json-as-xlsx/blob/main/examples/express/server.ts)

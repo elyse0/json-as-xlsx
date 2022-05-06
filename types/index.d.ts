@@ -1,8 +1,9 @@
-import { WritingOptions } from 'xlsx'
+import { WritingOptions } from "xlsx"
 
 export interface IColumn {
   label: string
   value: string | ((value: IContent) => string | number | boolean | Date | IContent)
+  format?: string
 }
 
 export interface IContent {
@@ -29,6 +30,6 @@ export interface IWorksheetColumnWidth {
   width: number
 }
 
-export function xlsx (jsonSheets: IJsonSheet[], settings?: ISettings): Buffer | undefined
+export function xlsx(jsonSheets: IJsonSheet[], settings?: ISettings): Buffer | undefined
 
 export default xlsx

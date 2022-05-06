@@ -1,28 +1,28 @@
 {
   "name": "json-as-xlsx",
-  "version": "2.2.5",
-  "main": "index.js",
+  "version": "2.4.0",
+  "main": "src/index.js",
   "license": "MIT",
   "types": "types/index.d.ts",
-  "description": "Create excel from json",
+  "description": "Create excel xlsx file from json",
   "author": "LuisEnMarroquin <luis@marroquin.dev>",
-  "homepage": "https://luisenmarroquin.github.io/json-as-xlsx",
+  "homepage": "https://xlsx.marroquin.dev",
   "scripts": {
-    "start": "tsc --watch index.ts",
-    "build": "tsc index.ts && uglifyjs index.js --output index.js",
+    "start": "tsc --watch src/index.ts",
+    "build": "tsc src/index.ts && uglifyjs src/index.js --output src/index.js",
     "start-client": "vue-cli-service serve",
     "build-client": "vue-cli-service build",
-    "start-server": "nodemon server.js",
-    "lint": "ts-standard --fix",
+    "start-server": "npx nodemon --exec npx ts-node --skip-project examples/express/server.ts",
     "test": "jest"
   },
   "dependencies": {
     "xlsx": "^0.17.2"
   },
   "devDependencies": {
+    "@types/express": "^4.17.13",
     "@types/jest": "^27.0.2",
-    "@types/node": "^16.10.2",
-    "@vue/cli-service": "^3.12.1",
+    "@types/node": "^17.0.0",
+    "@vue/cli-service": "^4.5.15",
     "express": "^4.17.1",
     "jest": "^27.3.1",
     "ts-jest": "^27.0.7",
@@ -31,12 +31,8 @@
     "vue": "^2.6.14",
     "vue-template-compiler": "^2.6.14"
   },
-  "optionalDependencies": {
-    "nodemon": "^2.0.12",
-    "ts-standard": "^10.0.0"
-  },
   "files": [
-    "index.js",
+    "src/index.js",
     "types/index.d.ts"
   ],
   "repository": {
@@ -52,7 +48,6 @@
     "excel",
     "jsonc",
     "json-xlsx",
-    "microsoft",
     "xlsx-json",
     "create-xlsx",
     "create-excel",
@@ -60,13 +55,15 @@
     "json-to-xlsx",
     "json-as-excel",
     "json-to-excel",
-    "microsoft-xlsx",
+    "xlsx-as-json",
     "xlsx-from-json",
+    "microsoft",
+    "microsoft-xlsx",
     "microsoft-excel"
   ],
   "browserslist": [
-    "> 1%",
-    "last 2 versions",
-    "not dead"
+    ">0.2%",
+    "not dead",
+    "not op_mini all"
   ]
 }
